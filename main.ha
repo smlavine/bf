@@ -7,7 +7,7 @@ use os::exec;
 
 // The return value must be freed.
 fn read_program(path: str) []u8 = {
-	const file = match(os::open(path)) {
+	const file = match (os::open(path)) {
 	case let e: fs::error =>
 		fmt::fatal(fs::strerror(e));
 	case let f: io::file =>
