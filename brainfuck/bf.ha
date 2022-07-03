@@ -69,8 +69,8 @@ export fn load(path: str) program = {
 			case '[' => yield operation::START;
 			case ']' => yield operation::END;
 			case =>
-				// All other chars are comments and should be
-				// ignored.
+				// All other chars are comments
+				// and should be ignored.
 				continue;
 			},
 			jump = void, // TODO: loops
@@ -81,7 +81,7 @@ export fn load(path: str) program = {
 };
 
 // Runs a Brainfuck program. May exit on failure.
-export fn run(prgm: program) void = {
+export fn run(program: program) void = {
 	const memory_increment = 256z;
 	// TODO: I do bounds-checking below, so somehow use [*]u8 instead.
 	// But it doesn't seem to work easily with alloc().
@@ -90,8 +90,8 @@ export fn run(prgm: program) void = {
 
 	let index = 0z;
 
-	for (let i = 0z; i < len(prgm); i += 1) {
-		switch (prgm[i].op) {
+	for (let i = 0z; i < len(program); i += 1) {
+		switch (program[i].op) {
 		case operation::RIGHT =>
 			index += 1;
 			if (index == len(memory)) {
