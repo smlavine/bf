@@ -120,7 +120,7 @@ export fn run(program: program) void = {
 				// is the easiest to implement (no signed
 				// numbers), and easy to detect by the
 				// programmer.
-				void;
+				memory[index] = 0;
 			case let s: size =>
 				assert(s == 1, "bad io::read");
 			};
