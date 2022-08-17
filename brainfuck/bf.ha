@@ -91,7 +91,7 @@ export fn load(path: str) program = {
 	return program;
 };
 
-// Runs a Brainfuck program. May exit on failure.
+// Runs a Brainfuck program. Returns void on success, error on failure.
 export fn run(program: program) (void | error) = {
 	const memory_increment = 256z;
 	// TODO: I do bounds-checking below, so somehow use [*]u8 instead.
