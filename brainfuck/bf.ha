@@ -5,9 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use fmt;
-use fs;
 use io;
-use os;
 
 // A valid operation for a Brainfuck program.
 export type operation = enum {
@@ -47,19 +45,7 @@ export type error = !(nmaa | unexpected);
 
 // Loads a Brainfuck program from the file at the provided path. The caller
 // must free the return value.
-export fn load(path: str) program = {
-	const file = match (os::open(path)) {
-	case let e: fs::error =>
-		fmt::fatal(fs::strerror(e));
-	case let f: io::file =>
-		yield f;
-	};
-	defer match (io::close(file)) {
-	case let e: io::error =>
-		fmt::errorln("couldn't close {}: {}", path, io::strerror(e))!;
-	case void => void;
-	};
-
+export fn load(file: io::file) program = {
 	const bytes = match (io::drain(file)) {
 	case let e: io::error =>
 		fmt::fatal(io::strerror(e));
@@ -92,7 +78,7 @@ export fn load(path: str) program = {
 };
 
 // Runs a Brainfuck program. Returns void on success, error on failure.
-export fn run(program: program) (void | error) = {
+export fn run(p: program, in: io::handle, out: io::handle) (void | error) = {
 	const memory_increment = 256z;
 	// TODO: I do bounds-checking below, so somehow use [*]u8 instead.
 	// But it doesn't seem to work easily with alloc().
@@ -101,8 +87,8 @@ export fn run(program: program) (void | error) = {
 
 	let index = 0z;
 
-	for (let i = 0z; i < len(program); i += 1) {
-		switch (program[i].op) {
+	for (let i = 0z; i < len(p); i += 1) {
+		switch (p[i].op) {
 		case operation::RIGHT =>
 			index += 1;
 			if (index == len(memory)) {
@@ -118,7 +104,7 @@ export fn run(program: program) (void | error) = {
 		case operation::DECR =>
 			memory[index] -= 1;
 		case operation::IN =>
-			match (io::read(os::stdin, memory[index..index + 1])) {
+			match (io::read(in, memory[index..index + 1])) {
 			case let e: io::error =>
 				fmt::fatal(io::strerror(e));
 			case io::EOF =>
@@ -132,7 +118,7 @@ export fn run(program: program) (void | error) = {
 				assert(s == 1, "bad io::read");
 			};
 		case operation::OUT =>
-			io::write(os::stdout, [memory[index]])!;
+			io::write(out, [memory[index]])!;
 		case operation::START =>
 			abort("looping not implemented yet");
 		case operation::END =>
