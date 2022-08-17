@@ -69,8 +69,7 @@ export fn load(path: str) program = {
 			case '[' => yield operation::START;
 			case ']' => yield operation::END;
 			case =>
-				// All other chars are comments
-				// and should be ignored.
+				// All other characters are comments.
 				continue;
 			},
 			jump = void, // TODO: loops
@@ -113,13 +112,11 @@ export fn run(program: program) void = {
 			case let e: io::error =>
 				fmt::fatal(io::strerror(e));
 			case io::EOF =>
-				// According to the Wikipedia article for
-				// Brainfuck, there are three common ways to
-				// handle EOF: set to 0, set to -1, or no
-				// change. I choose to set to zero, because it
-				// is the easiest to implement (no signed
-				// numbers), and easy to detect by the
-				// programmer.
+				// There is no consensus among implementations
+				// as to behavior on EOF[0]. One of the easiest
+				// and most common solutions is to set the cell
+				// to 0.
+				// [0]: https://en.wikipedia.org/Brainfuck#End-of-file_behavior
 				memory[index] = 0;
 			case let s: size =>
 				assert(s == 1, "bad io::read");
