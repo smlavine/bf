@@ -15,5 +15,9 @@ export fn main() void = {
 	};
 	const program = brainfuck::load(os::args[1]);
 	defer free(program);
-	brainfuck::run(program);
+	match (brainfuck::run(program)) {
+	case let e: brainfuck::error =>
+		fmt::fatalf("fatal: {}", brainfuck::strerror(e));
+	case void => void;
+	};
 };

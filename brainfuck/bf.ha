@@ -8,7 +8,6 @@ use fmt;
 use fs;
 use io;
 use os;
-use os::exec;
 
 // A valid operation for a Brainfuck program.
 export type operation = enum {
@@ -22,6 +21,11 @@ export type operation = enum {
 	END,   // Close a loop.
 };
 
+// Unexpected character encountered in the course of running a program.
+// Currently used only for loop brackets encountered without a matching
+// opening/closing bracket.
+export type unexpected = !operation;
+
 // A single point in a Brainfuck program.
 export type point = struct {
 	op: operation,
@@ -32,6 +36,14 @@ export type point = struct {
 
 // A Brainfuck program.
 export type program = []point;
+
+// Negative memory access attempt.
+export type nmaa = !void;
+
+// An error that occurs in the course of running a Brainfuck program.
+// Currently only used in the event of an negative memory access attempt;
+// see [[run]].
+export type error = !(nmaa | unexpected);
 
 // Loads a Brainfuck program from the file at the provided path. The caller
 // must free the return value.
@@ -80,7 +92,7 @@ export fn load(path: str) program = {
 };
 
 // Runs a Brainfuck program. May exit on failure.
-export fn run(program: program) void = {
+export fn run(program: program) (void | error) = {
 	const memory_increment = 256z;
 	// TODO: I do bounds-checking below, so somehow use [*]u8 instead.
 	// But it doesn't seem to work easily with alloc().
@@ -98,9 +110,7 @@ export fn run(program: program) void = {
 			};
 		case operation::LEFT =>
 			if (index == 0) {
-				fmt::errorln("LEFT out of bounds")!;
-				exec::kill(exec::self(),
-					exec::signal::SIGSEGV)!;
+				return nmaa;
 			};
 			index -= 1;
 		case operation::INCR =>
@@ -128,5 +138,15 @@ export fn run(program: program) void = {
 		case operation::END =>
 			abort("looping not implemented yet");
 		};
+	};
+};
+
+// Converts a Brainfuck [[error]] into a user-friendly string.
+export fn strerror(e: error) str = {
+	match (e) {
+	case nmaa =>
+		return "Attempted to access negative memory";
+	case unexpected =>
+		abort("strerror: unexpected (loops) not yet implemented");
 	};
 };
