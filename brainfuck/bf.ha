@@ -12,10 +12,10 @@ use os::exec;
 
 // A valid operation for a Brainfuck program.
 export type operation = enum {
-	RIGHT, // Move the data pointer one cell to the right.
 	LEFT,  // Move the data pointer one cell to the left.
-	INCR,  // Increment the value at the data pointer.
+	RIGHT, // Move the data pointer one cell to the right.
 	DECR,  // Decrement the value at the data pointer.
+	INCR,  // Increment the value at the data pointer.
 	IN,    // Read a byte from stdin into the cell at the data pointer.
 	OUT,   // Write the byte at the data pointer to stdout.
 	START, // Open a loop.
@@ -60,10 +60,10 @@ export fn load(path: str) program = {
 	for (let i = 0z; i < len(bytes); i += 1) {
 		append(program, point {
 			op = switch (bytes[i]) {
-			case '>' => yield operation::RIGHT;
 			case '<' => yield operation::LEFT;
-			case '+' => yield operation::INCR;
+			case '>' => yield operation::RIGHT;
 			case '-' => yield operation::DECR;
+			case '+' => yield operation::INCR;
 			case ',' => yield operation::IN;
 			case '.' => yield operation::OUT;
 			case '[' => yield operation::START;
