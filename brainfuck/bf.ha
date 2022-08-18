@@ -24,7 +24,7 @@ export type point = struct {
 	op: operation,
 	// For loop brackets: the index of the matching bracket in the program.
 	// void for all other operations.
-	jump: (size | void),
+	jump: (void | size),
 };
 
 // A Brainfuck program.
