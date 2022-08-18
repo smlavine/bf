@@ -89,20 +89,20 @@ export fn run(p: program, in: io::handle, out: io::handle) (void | error) = {
 
 	for (let i = 0z; i < len(p); i += 1) {
 		switch (p[i].op) {
-		case operation::RIGHT =>
-			index += 1;
-			if (index == len(memory)) {
-				append(memory, [0...], memory_increment);
-			};
 		case operation::LEFT =>
 			if (index == 0) {
 				return nmaa;
 			};
 			index -= 1;
-		case operation::INCR =>
-			memory[index] += 1;
+		case operation::RIGHT =>
+			index += 1;
+			if (index == len(memory)) {
+				append(memory, [0...], memory_increment);
+			};
 		case operation::DECR =>
 			memory[index] -= 1;
+		case operation::INCR =>
+			memory[index] += 1;
 		case operation::IN =>
 			match (io::read(in, memory[index..index + 1])) {
 			case let e: io::error =>
