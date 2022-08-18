@@ -13,30 +13,35 @@ use brainfuck;
 
 export fn main() void = {
 	if (len(os::args) != 2) {
-		fmt::fatalf("usage: {} <programfile>", os::args[0]);
+		fmt::fatalf("Usage: {} <programfile>", os::args[0]);
 	};
 
-	const file = match (os::open(os::args[1])) {
+	const path = os::args[1];
+	const file = match (os::open(path)) {
 	case let e: fs::error =>
-		fmt::fatal(fs::strerror(e));
+		fmt::fatalf("{}: Couldn't open {}: {}",
+			os::args[0], path, fs::strerror(e));
 	case let f: io::file =>
 		yield f;
 	};
 	defer match (io::close(file)) {
 	case let e: io::error =>
-		match (fmt::errorln("couldn't close {}: {}",
-				os::args[1], io::strerror(e))) {
-		case => void; // Ignore io::error
-		};
+		fmt::errorln("{}: Couldn't close {}: {}", os::args[0],
+			path, io::strerror(e)): void; // Ignore io::error
 	case void => void;
 	};
 
-	const program = brainfuck::load(file);
+	const program = match (brainfuck::load(file)) {
+	case let e: brainfuck::load_error =>
+		fmt::fatalf("{}: {}", os::args[0], brainfuck::strerror(e));
+	case let p: brainfuck::program =>
+		yield p;
+	};
 	defer free(program);
 
 	match (brainfuck::run(program, os::stdin, os::stdout)) {
-	case let e: brainfuck::error =>
-		fmt::fatalf("fatal: {}", brainfuck::strerror(e));
+	case let e: brainfuck::run_error =>
+		fmt::fatalf("{}: {}", os::args[0], brainfuck::strerror(e));
 	case void => void;
 	};
 };
