@@ -15,8 +15,8 @@ export type operation = enum {
 	INCR,  // Increment the value at the data pointer.
 	IN,    // Read a byte from stdin into the cell at the data pointer.
 	OUT,   // Write the byte at the data pointer to stdout.
-	START, // Open a loop.
-	END,   // Close a loop.
+	OPEN,  // Open a loop.
+	CLOSE, // Close a loop.
 };
 
 // A single point in a Brainfuck program.
@@ -61,8 +61,8 @@ export fn load(file: io::file) (program | load_error) = {
 			case '+' => yield operation::INCR;
 			case ',' => yield operation::IN;
 			case '.' => yield operation::OUT;
-			case '[' => yield operation::START;
-			case ']' => yield operation::END;
+			case '[' => yield operation::OPEN;
+			case ']' => yield operation::CLOSE;
 			case =>
 				// All other characters are comments.
 				continue;
@@ -119,9 +119,9 @@ export fn run(
 			};
 		case operation::OUT =>
 			io::write(out, [memory[index]])?;
-		case operation::START =>
+		case operation::OPEN =>
 			abort("looping not implemented yet");
-		case operation::END =>
+		case operation::CLOSE =>
 			abort("looping not implemented yet");
 		};
 	};
