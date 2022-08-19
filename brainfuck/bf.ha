@@ -7,7 +7,7 @@
 use fmt;
 use io;
 
-// A valid operation for a Brainfuck [[program]].
+// A valid operation for a Brainfuck program.
 export type operation = enum {
 	LEFT,  // Move the data pointer one cell to the left.
 	RIGHT, // Move the data pointer one cell to the right.
@@ -19,7 +19,7 @@ export type operation = enum {
 	END,   // Close a loop.
 };
 
-// A single point in a Brainfuck [[program]].
+// A single point in a Brainfuck program.
 export type point = struct {
 	op: operation,
 	// For loop brackets: the index of the matching bracket in the program.
@@ -34,17 +34,19 @@ export type program = []point;
 // corresponding opening/closing bracket.
 export type bad_loop = !operation;
 
-// An error that occurs in the course of [[load]]ing a Brainfuck [[program]].
+// An error that occurs in the course of loading a Brainfuck program. See
+// [[load]].
 export type load_error = !(bad_loop | io::error);
 
 // Negative memory access attempt.
 export type nmaa = !void;
 
-// An error that occurs in the course of [[run]]ning a Brainfuck [[program]].
+// An error that occurs in the course of running a Brainfuck program. See
+// [[run]].
 export type run_error = !(nmaa | io::error);
 
-// Loads a Brainfuck [[program]] from the file at the provided path. The caller
-// must free the return value.
+// Loads a Brainfuck program from the file at the provided path. The caller
+// must free the return value on success. Returns [[load_error]] on failure.
 export fn load(file: io::file) (program | load_error) = {
 	const bytes = io::drain(file)?;
 	defer free(bytes);
