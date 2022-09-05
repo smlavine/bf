@@ -30,13 +30,17 @@ export type point = struct {
 // A Brainfuck program.
 export type program = []point;
 
-// An error that occurs when a loop bracket is found without a
-// corresponding opening/closing bracket.
-export type bad_loop = !operation;
+// An error that occurs when an opening bracket is present without a
+// corresponding closing bracket.
+export type unexpected_open = !void;
+
+// An error that occurs when an closing bracket is present without a
+// corresponding opening bracket.
+export type unexpected_close = !void;
 
 // An error that occurs in the course of loading a Brainfuck program. See
 // [[load]].
-export type load_error = !(bad_loop | io::error);
+export type load_error = !(unexpected_open | unexpected_close | io::error);
 
 // Negative memory access attempt.
 export type nmaa = !void;
@@ -51,24 +55,55 @@ export fn load(file: io::file) (program | load_error) = {
 	const bytes = io::drain(file)?;
 	defer free(bytes);
 
+	// Stack that holds indices of opening loop brackets in the program.
+	// When a closing bracket is found, an index is taken off the top of
+	// the stack and used as the jump point for that closing bracket. The
+	// already-parsed opening bracket point is modified to use the index
+	// of the closing bracket as its jump point.
+	let loopstack: []size = [];
+	defer free(loopstack);
+
 	let program: program = [];
 	for (let i = 0z; i < len(bytes); i += 1) {
-		append(program, point {
-			op = switch (bytes[i]) {
-			case '<' => yield operation::LEFT;
-			case '>' => yield operation::RIGHT;
-			case '-' => yield operation::DECR;
-			case '+' => yield operation::INCR;
-			case ',' => yield operation::IN;
-			case '.' => yield operation::OUT;
-			case '[' => yield operation::OPEN;
-			case ']' => yield operation::CLOSE;
-			case =>
-				// All other characters are comments.
-				continue;
-			},
-			jump = void, // TODO: loops
-		});
+		const point = switch (bytes[i]) {
+		case '<' =>
+			yield point { op = operation::LEFT, jump = void };
+		case '>' =>
+			yield point { op = operation::RIGHT, jump = void };
+		case '-' =>
+			yield point { op = operation::DECR, jump = void };
+		case '+' =>
+			yield point { op = operation::INCR, jump = void };
+		case ',' =>
+			yield point { op = operation::IN, jump = void };
+		case '.' =>
+			yield point { op = operation::OUT, jump = void };
+		case '[' =>
+			append(loopstack, len(program)); // index after append
+
+			// The jump point for opening loop brackets is
+			// initialized to void, but will be set to the index
+			// of the corresponding closing loop bracket once it
+			// is read.
+			yield point { op = operation::OPEN, jump = void };
+		case ']' =>
+			if (len(loopstack) == 0) {
+				free(program);
+				return unexpected_close;
+			};
+			const open = loopstack[len(loopstack) - 1];
+			delete(loopstack[len(loopstack) - 1]);
+			program[open].jump = len(program); // index after append
+			yield point { op = operation::CLOSE, jump = open };
+		case =>
+			continue; // All other characters are comments.
+		};
+		append(program, point);
+	};
+
+	if (len(loopstack) != 0) {
+		free(program);
+		return unexpected_open;
 	};
 
 	return program;
@@ -120,9 +155,13 @@ export fn run(
 		case operation::OUT =>
 			io::write(out, [memory[index]])?;
 		case operation::OPEN =>
-			abort("looping not implemented yet");
+			if (memory[index] == 0) {
+				i = program[i].jump as size;
+			};
 		case operation::CLOSE =>
-			abort("looping not implemented yet");
+			if (memory[index] != 0) {
+				i = program[i].jump as size;
+			};
 		};
 	};
 };
@@ -134,7 +173,9 @@ export fn strerror(e: (...load_error | ...run_error)) str = {
 		return io::strerror(ioe);
 	case nmaa =>
 		return "Attempted to access negative memory";
-	case bad_loop =>
-		abort("brainfuck::strerror: loops not yet implemented");
+	case unexpected_open =>
+		return "Unexpected '[': No corresponding closing bracket";
+	case unexpected_close =>
+		return "Unexpected ']': No corresponding opening bracket";
 	};
 };
