@@ -56,10 +56,11 @@ export fn load(file: io::file) (program | load_error) = {
 	defer free(bytes);
 
 	// Stack that holds indices of opening loop brackets in the program.
-	// When a closing bracket is found, an index is taken off the top of
-	// the stack and used as the jump point for that closing bracket. The
-	// already-parsed opening bracket point is modified to use the index
-	// of the closing bracket as its jump point.
+	// When an opening backet is found, its index is added to the top of
+	// the stack. When a closing bracket is found, the top index is taken
+	// off the stack and used as the jump point for that closing bracket.
+	// The already-parsed opening bracket point is modified to use the
+	// index of the closing bracket as its jump point.
 	let loopstack: []size = [];
 	defer free(loopstack);
 
