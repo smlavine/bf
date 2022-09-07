@@ -67,38 +67,47 @@ export fn load(file: io::file) (program | load_error) = {
 	let program: program = [];
 	for (let i = 0z; i < len(bytes); i += 1) {
 		const point = switch (bytes[i]) {
-		case '<' =>
-			yield point { op = operation::LEFT, jump = void };
-		case '>' =>
-			yield point { op = operation::RIGHT, jump = void };
-		case '-' =>
-			yield point { op = operation::DECR, jump = void };
-		case '+' =>
-			yield point { op = operation::INCR, jump = void };
-		case ',' =>
-			yield point { op = operation::IN, jump = void };
-		case '.' =>
-			yield point { op = operation::OUT, jump = void };
 		case '[' =>
-			append(loopstack, len(program)); // index after append
-
-			// The jump point for opening loop brackets is
-			// initialized to void, but will be set to the index
-			// of the corresponding closing loop bracket once it
-			// is read.
-			yield point { op = operation::OPEN, jump = void };
+			append(loopstack, len(program));
+			yield point {
+				op = operation::OPEN,
+				// jump is set to the correct index when the
+				// ']' is found.
+				jump = void,
+			};
 		case ']' =>
 			if (len(loopstack) == 0) {
+				// No corresponding opening bracket
 				free(program);
 				return unexpected_close;
 			};
-			const open = loopstack[len(loopstack) - 1];
+
+			// Set open bracket to jump to this bracket
+			const open_bracket = loopstack[len(loopstack) - 1];
 			delete(loopstack[len(loopstack) - 1]);
-			program[open].jump = len(program); // index after append
-			yield point { op = operation::CLOSE, jump = open };
+			program[open_bracket].jump = len(program);
+
+			yield point {
+				op = operation::CLOSE,
+				jump = open_bracket,
+			};
 		case =>
-			continue; // All other characters are comments.
+			yield point {
+				op = switch (bytes[i]) {
+				case '<' => yield operation::LEFT;
+				case '>' => yield operation::RIGHT;
+				case '-' => yield operation::DECR;
+				case '+' => yield operation::INCR;
+				case ',' => yield operation::IN;
+				case '.' => yield operation::OUT;
+				case =>
+					// All other characters are comments.
+					continue;
+				},
+				jump = void,
+			};
 		};
+
 		append(program, point);
 	};
 
