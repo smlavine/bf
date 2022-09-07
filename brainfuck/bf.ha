@@ -133,8 +133,8 @@ export fn run(
 
 	let index = 0z;
 
-	for (let i = 0z; i < len(program); i += 1) {
-		switch (program[i].op) {
+	for (let p = 0z; p < len(program); p += 1) {
+		switch (program[p].op) {
 		case operation::LEFT =>
 			if (index == 0) {
 				return nmaa;
@@ -165,11 +165,11 @@ export fn run(
 			io::write(out, [memory[index]])?;
 		case operation::OPEN =>
 			if (memory[index] == 0) {
-				i = program[i].jump as size;
+				p = program[p].jump as size;
 			};
 		case operation::CLOSE =>
 			if (memory[index] != 0) {
-				i = program[i].jump as size;
+				p = program[p].jump as size;
 			};
 		};
 	};
