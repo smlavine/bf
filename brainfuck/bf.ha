@@ -126,10 +126,14 @@ export fn run(
 	out: io::handle,
 ) (void | run_error) = {
 	const memory_increment = 256z;
-	// TODO: I do bounds-checking below, so somehow use [*]u8 instead.
-	// But it doesn't seem to work easily with alloc().
-	let memory: []u8 = alloc([0...], memory_increment);
-	defer free(memory);
+
+	// Because we do our own bounds checking below, we don't need to use
+	// Hare's built-in slice bounds checking. This provides a slight
+	// performance improvement.
+	// [0]: https://harelang.org/tutorials/introduction/#arrays-and-slices-continued
+	let _mem: []u8 = alloc([0...], memory_increment);
+	let memory: *[*]u8 = _mem: *[*]u8;
+	defer free(_mem);
 
 	let index = 0z;
 
@@ -142,8 +146,9 @@ export fn run(
 			index -= 1;
 		case operation::RIGHT =>
 			index += 1;
-			if (index == len(memory)) {
-				append(memory, [0...], memory_increment);
+			if (index == len(_mem)) {
+				append(_mem, [0...], memory_increment);
+				memory = _mem: *[*]u8;
 			};
 		case operation::DECR =>
 			memory[index] -= 1;
