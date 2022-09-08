@@ -22,8 +22,8 @@ export type operation = enum {
 export type point = struct {
 	op: operation,
 	// For loop brackets: the index of the matching bracket in the program.
-	// void for all other operations.
-	jump: (void | size),
+	// It has no meaning for any other operations.
+	jump: size,
 };
 
 // A Brainfuck program.
@@ -72,7 +72,7 @@ export fn load(file: io::file) (program | load_error) = {
 				op = operation::OPEN,
 				// jump is set to the correct index when the
 				// ']' is found.
-				jump = void,
+				jump = 0,
 			};
 		case ']' =>
 			if (len(loopstack) == 0) {
@@ -103,7 +103,7 @@ export fn load(file: io::file) (program | load_error) = {
 					// All other characters are comments.
 					continue;
 				},
-				jump = void,
+				jump = 0,
 			};
 		};
 
@@ -170,11 +170,11 @@ export fn run(
 			io::write(out, [memory[index]])?;
 		case operation::OPEN =>
 			if (memory[index] == 0) {
-				p = program[p].jump as size;
+				p = program[p].jump;
 			};
 		case operation::CLOSE =>
 			if (memory[index] != 0) {
-				p = program[p].jump as size;
+				p = program[p].jump;
 			};
 		};
 	};
