@@ -32,7 +32,7 @@ export fn main() void = {
 	};
 
 	const program = match (brainfuck::load(file)) {
-	case let e: brainfuck::load_error =>
+	case let e: brainfuck::error =>
 		fmt::fatalf("{}: {}", os::args[0], brainfuck::strerror(e));
 	case let p: brainfuck::program =>
 		yield p;
@@ -40,7 +40,7 @@ export fn main() void = {
 	defer free(program);
 
 	match (brainfuck::run(program, os::stdin, os::stdout)) {
-	case let e: brainfuck::run_error =>
+	case let e: brainfuck::error =>
 		fmt::fatalf("{}: {}", os::args[0], brainfuck::strerror(e));
 	case void => void;
 	};

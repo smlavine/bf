@@ -48,9 +48,13 @@ export type nmaa = !void;
 // [[run]].
 export type run_error = !(nmaa | io::error);
 
+// An error that can occur in the course of loading or running a Brainfuck
+// program.
+export type error = !(...load_error | ...run_error);
+
 // Loads a Brainfuck program from the provided handle. The caller
 // must free the return value on success. Returns [[load_error]] on failure.
-export fn load(h: io::handle) (program | load_error) = {
+export fn load(h: io::handle) (program | error) = {
 	const bytes = io::drain(h)?;
 	defer free(bytes);
 
@@ -124,7 +128,7 @@ export fn run(
 	program: program,
 	in: io::handle,
 	out: io::handle,
-) (void | run_error) = {
+) (void | error) = {
 	const memory_increment = 256z;
 
 	// Because we do our own bounds checking below, we don't need to use
@@ -181,7 +185,7 @@ export fn run(
 };
 
 // Converts a Brainfuck error into a user-friendly string.
-export fn strerror(e: (...load_error | ...run_error)) str = {
+export fn strerror(e: error) str = {
 	match (e) {
 	case let ioe: io::error =>
 		return io::strerror(ioe);
