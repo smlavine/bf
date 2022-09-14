@@ -37,14 +37,14 @@ export type unexpected_open = !void;
 // corresponding opening bracket.
 export type unexpected_close = !void;
 
-// An error that occurs in the course of loading a Brainfuck program. See
+// An error that can occur in the course of loading a Brainfuck program. See
 // [[load]].
 export type load_error = !(unexpected_open | unexpected_close | io::error);
 
-// Negative memory access attempt.
+// An error that occurs when a negative memory access attempt is made.
 export type nmaa = !void;
 
-// An error that occurs in the course of running a Brainfuck program. See
+// An error that can occur in the course of running a Brainfuck program. See
 // [[run]].
 export type run_error = !(nmaa | io::error);
 
