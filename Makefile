@@ -5,12 +5,12 @@ HARE = hare
 
 NAME = bf
 
-SRC = main.ha brainfuck/bf.ha
+SRC = cmd/main.ha brainfuck/bf.ha
 
-all: $(NAME)
+all: cmd
 
-$(NAME): $(SRC)
-	$(HARE) build $(HAREFLAGS) -o $@
+cmd: $(SRC)
+	$(HARE) build $(HAREFLAGS) -o $(NAME) cmd
 
 check:
 	$(HARE) test
@@ -18,4 +18,4 @@ check:
 clean:
 	rm -f $(NAME)
 
-.PHONY: all check clean
+.PHONY: all check clean cmd
