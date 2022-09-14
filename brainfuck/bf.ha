@@ -48,10 +48,10 @@ export type nmaa = !void;
 // [[run]].
 export type run_error = !(nmaa | io::error);
 
-// Loads a Brainfuck program from the file at the provided path. The caller
+// Loads a Brainfuck program from the provided handle. The caller
 // must free the return value on success. Returns [[load_error]] on failure.
-export fn load(file: io::file) (program | load_error) = {
-	const bytes = io::drain(file)?;
+export fn load(h: io::handle) (program | load_error) = {
+	const bytes = io::drain(h)?;
 	defer free(bytes);
 
 	// Stack that holds indices of opening loop brackets in the program.
