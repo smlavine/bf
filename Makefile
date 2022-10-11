@@ -4,9 +4,13 @@ HARE = hare
 
 NAME = bf
 
-SRC = cmd/main.ha brainfuck/bf.ha
+LIBSRC = brainfuck/bf.ha
+CMDSRC = cmd/main.ha
+SRC = $(LIBSRC) $(CMDSRC)
 
 all: cmd
+
+$(NAME): cmd
 
 cmd: $(SRC)
 	$(HARE) build $(HAREFLAGS) -o $(NAME) cmd
