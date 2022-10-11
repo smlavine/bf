@@ -1,5 +1,4 @@
 .POSIX:
-.SUFFIXES:
 
 HARE = hare
 
