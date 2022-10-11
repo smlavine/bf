@@ -6,6 +6,9 @@
 
 use io;
 
+// The version of the library.
+export def VERSION: str = "0.0";
+
 // A valid operation for a Brainfuck program.
 export type operation = enum {
 	LEFT,  // Move the data pointer one cell to the left.

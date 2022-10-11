@@ -6,17 +6,35 @@
 
 use fmt;
 use fs;
+use getopt;
 use io;
 use os;
 
 use brainfuck;
 
 export fn main() void = {
-	if (len(os::args) != 2) {
-		fmt::fatalf("Usage: {} <programfile>", os::args[0]);
+	const help: []getopt::help = [
+		"Brainfuck interpreter",
+		('v', "Display version"),
+		"program-file",
+	];
+	const cmd = getopt::parse(os::args, help...);
+	defer getopt::finish(&cmd);
+
+	for (let i = 0z; i < len(cmd.opts); i += 1) {
+		switch (cmd.opts[i].0) {
+		case 'v' =>
+			fmt::printfln("bf v{}", brainfuck::VERSION)!;
+			return;
+		};
 	};
 
-	const path = os::args[1];
+	if (len(cmd.args) != 1) {
+		getopt::printusage(os::stderr, os::args[0], help);
+		os::exit(1);
+	};
+
+	const path = cmd.args[0];
 	const file = match (os::open(path)) {
 	case let e: fs::error =>
 		fmt::fatalf("{}: Couldn't open {}: {}",
