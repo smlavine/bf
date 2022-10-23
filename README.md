@@ -12,7 +12,7 @@ Hello World!
 $ printf 'a\n b\n  c\n' | bf examples/parrot.bf
 a
  b
-   c
+  c
 $
 ```
 
