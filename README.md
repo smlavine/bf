@@ -1,3 +1,6 @@
+<!-- Copyright (c) 2022 Sebastian LaVine <mail@smlavine.com> -->
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+
 # [bf](https://sr.ht/~smlavine/bf)
 
 A modular Brainfuck interpreter, written in Hare.
@@ -79,6 +82,11 @@ Patches may be sent to [~smlavine/bf-devel](https://lists.sr.ht/~smlavine/bf-dev
 
 Copyright (C) 2022 Sebastian LaVine
 
-Licensed under the MPLv2. See [LICENSE][license].
+The majority of this project is licensed under the MPL-2.0. See
+[LICENSE][license]. This project conforms with the [REUSE
+specification][reuse]; see [LICENSES/][licenses] and the individual
+files for more information.
 
 [license]: https://git.sr.ht/~smlavine/bf/tree/master/item/LICENSE
+[reuse]: https://reuse.software
+[licenses]: https://git.sr.ht/~smlavine/bf/tree/master/item/LICENSES

@@ -1,3 +1,6 @@
+[ Copyright (c) Wikipedia contributors
+  SPDX-License-Identifier: CC-BY-SA-3.0
+]
 ++       Cell c0 = 2
 > +++++  Cell c1 = 5
 
