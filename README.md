@@ -82,11 +82,10 @@ Patches may be sent to [~smlavine/bf-devel](https://lists.sr.ht/~smlavine/bf-dev
 
 Copyright (C) 2022 Sebastian LaVine
 
-The majority of this project is licensed under the MPL-2.0. See
-[LICENSE][license]. This project conforms with the [REUSE
-specification][reuse]; see [LICENSES/][licenses] and the individual
-files for more information.
+The majority of this project is licensed under the MPL-2.0.
 
-[license]: https://git.sr.ht/~smlavine/bf/tree/master/item/LICENSE
+This project conforms with the [REUSE specification][reuse]; see
+[LICENSES/][licenses] and the individual files for more information.
+
 [reuse]: https://reuse.software
 [licenses]: https://git.sr.ht/~smlavine/bf/tree/master/item/LICENSES
